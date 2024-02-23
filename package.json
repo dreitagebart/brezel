@@ -1,5 +1,5 @@
 {
-  "name": "brezel",
+  "name": "@brezel/core",
   "private": true,
   "scripts": {
     "build": "turbo build",

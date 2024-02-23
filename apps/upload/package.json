@@ -1,0 +1,11 @@
+{
+  "name": "@brezel/upload",
+  "version": "0.1.0",
+  "private": "true",
+  "scripts": {
+    "dev": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
