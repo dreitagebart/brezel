@@ -1,0 +1,41 @@
+{
+  "name": "@brezel/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "prisma": {
+    "seed": "tsx ./src/seed.ts"
+  },
+  "exports": {
+    ".": "./dist/client.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/client.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "format": "prisma format",
+    "seed": "dotenv -e ../../.env.local -- prisma db seed",
+    "studio": "dotenv -e ../../.env.local -- prisma studio -p 3003",
+    "push": "dotenv -e ../../.env.local -- prisma db push --skip-generate",
+    "reset": "dotenv -e ../../.env.local -- prisma migrate reset --force --skip-seed --skip-generate",
+    "generate": "prisma generate",
+    "prisma": "prisma"
+  },
+  "devDependencies": {
+    "@brezel/typescript": "workspace:*",
+    "@types/node": "^20.10.6",
+    "dotenv-cli": "^7.3.0",
+    "prisma": "^5.10.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@prisma/client": "5.10.2"
+  }
+}

@@ -1,0 +1,5 @@
+.wrapper {
+  border-bottom: 1px solid
+    light-dark(var(--mantine-color-dark-0), var(--mantine-color-dark-4));
+  padding-bottom: var(--mantine-spacing-xl);
+}

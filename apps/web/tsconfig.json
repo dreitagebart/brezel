@@ -1,6 +1,9 @@
 {
   "extends": "@brezel/typescript/nextjs.json",
   "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"]
+    },
     "plugins": [
       {
         "name": "next"

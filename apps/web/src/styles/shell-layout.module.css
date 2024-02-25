@@ -1,0 +1,7 @@
+.header {
+  border: none;
+}
+
+.main {
+  padding-top: calc(var(--mantine-spacing-xl) + 100px);
+}

@@ -3,5 +3,12 @@
     {
       "mode": "auto"
     }
+  ],
+  "cssVariables.lookupFiles": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.less",
+    "apps/web/node_modules/@mantine/core/styles.css"
   ]
 }

@@ -1,13 +1,48 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDependencies": [
+    "**/.env.*local"
+  ],
+  "globalDotEnv": [
+    ".env.local",
+    ".env"
+  ],
+  "globalEnv": [
+    "GITHUB_ID",
+    "DATABASE_URL"
+  ],
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
+    },
+    "@brezel/database#format": {
+      "cache": false
+    },
+    "@brezel/database#seed": {
+      "cache": false
+    },
+    "@brezel/database#studio": {
+      "cache": false
+    },
+    "@brezel/database#push": {
+      "cache": false
+    },
+    "@brezel/database#generate": {
+      "cache": false
+    },
+    "@brezel/database#reset": {
+      "cache": false
     },
     "dev": {
       "cache": false,

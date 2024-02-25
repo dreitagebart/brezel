@@ -4,6 +4,12 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "db:reset": "turbo run reset --filter=@brezel/database",
+    "db:format": "turbo run format --filter=@brezel/database",
+    "db:generate": "turbo run generate --filter=@brezel/database",
+    "db:push": "turbo run push --filter=@brezel/database",
+    "db:studio": "turbo run studio --filter=@brezel/database",
+    "db:seed": "turbo run seed --filter=@brezel/database",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

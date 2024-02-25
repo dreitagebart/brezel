@@ -1,0 +1,59 @@
+version: '3.7'
+
+services:
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+    volumes:
+      - ./docker/redis/data:/data
+
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    command: --api.insecure=true --providers.docker
+    ports:
+      - '80:80'
+      - '8080:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
+    labels:
+      - 'traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)'
+
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    # ports:
+    #   - 8099:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress:/var/www/html
+    labels:
+      - traefik.http.routers.wordpress.rule=Host(`wordpress.docker.localhost`)
+      - traefik.http.services.wordpress.loadbalancer.server.port=80
+
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  wordpress:
+  db:

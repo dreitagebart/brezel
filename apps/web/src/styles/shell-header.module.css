@@ -1,0 +1,18 @@
+.tabsList {
+  /* border: 1px solid red; */
+  padding-left: 20px;
+}
+
+.username {
+  color: light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1));
+}
+
+.email {
+  font-size: var(--mantine-font-size-sm);
+  color: light-dark(var(--mantine-color-dark-2), var(--mantine-color-gray-6));
+}
+
+.loggedIn {
+  padding-top: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-md);
+}
