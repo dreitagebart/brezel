@@ -1,6 +1,10 @@
 import Link from 'next/link'
 import { Card, Group, Text, ThemeIcon, UnstyledButton } from '@mantine/core'
-import { IconBrandGithubFilled, IconLink } from '@tabler/icons-react'
+import {
+  IconBrandGithubFilled,
+  IconExternalLink,
+  IconLink
+} from '@tabler/icons-react'
 import { FC } from 'react'
 
 interface Props {
@@ -21,9 +25,9 @@ export const RepositoryCard: FC<Props> = ({ data }) => {
           <Text fw='bold'>{data.title}</Text>
         </Group>
         <UnstyledButton component={Link} href={data.url}>
-          <Group>
-            <IconLink size={20}></IconLink>
+          <Group gap='xs'>
             <Text size='sm'>{data.url}</Text>
+            <IconExternalLink size={18}></IconExternalLink>
           </Group>
         </UnstyledButton>
       </Group>
