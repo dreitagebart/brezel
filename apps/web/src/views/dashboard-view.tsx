@@ -3,10 +3,9 @@
 import {
   Button,
   Container,
-  Drawer,
-  Flex,
   Grid,
   GridCol,
+  Group,
   Select,
   SimpleGrid,
   Title
@@ -19,12 +18,11 @@ import { FC, useState } from 'react'
 import { getRepositories } from '~/app/actions'
 import { RepositoryCard } from '~/components/cards'
 import { CreateRepositoryForm, SearchRepositoryForm } from '~/components/forms'
+import { Layouts } from '~/utils/types'
 
 interface Props {
   initialData: Awaited<ReturnType<typeof getRepositories>>
 }
-
-type Layouts = 'grid' | 'list'
 
 const layoutOptions: Array<{ label: string; value: Layouts }> = [
   {
@@ -81,18 +79,31 @@ export const DashboardView: FC<Props> = ({ initialData }) => {
             </Button>
           </GridCol>
         </Grid>
-        <SimpleGrid
-          mt='xl'
-          cols={layout === 'list' ? 1 : layout === 'grid' ? 3 : 1}
-        >
-          {data
-            .filter(({ title }) => title.toLowerCase().includes(search))
-            .map(({ id, title, url }) => {
-              return (
-                <RepositoryCard key={id} data={{ title, url }}></RepositoryCard>
-              )
-            })}
-        </SimpleGrid>
+        {data.length > 0 ? (
+          <SimpleGrid
+            mt='xl'
+            cols={layout === 'list' ? 1 : layout === 'grid' ? 3 : 1}
+          >
+            {data
+              .filter(({ title }) => title.toLowerCase().includes(search))
+              .map((repo) => {
+                return (
+                  <RepositoryCard key={repo.id} data={repo}></RepositoryCard>
+                )
+              })}
+          </SimpleGrid>
+        ) : (
+          <Group mt='xl' justify='center'>
+            <Title order={3}>There are no repositories yet</Title>
+            <Button
+              variant='light'
+              leftSection={<IconPlus></IconPlus>}
+              onClick={createHandler.open}
+            >
+              create new repository
+            </Button>
+          </Group>
+        )}
       </Container>
       <CreateRepositoryForm
         onSuccess={() => {

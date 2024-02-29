@@ -11,26 +11,26 @@ import {
   Title
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { useSession } from 'next-auth/react'
-import { ChangeEvent, FC, useCallback, useEffect } from 'react'
+import { ChangeEvent, FC, useCallback } from 'react'
+import { AuthUser } from '~/utils/types'
 
-interface Props {}
+interface Props {
+  user: AuthUser
+}
 
 interface FormValues {
   email: string
 }
 
-export const EmailSection: FC<Props> = () => {
-  const { data: session, status } = useSession()
-  const { values, setFieldValue, onSubmit, isDirty, resetDirty } =
-    useForm<FormValues>({
-      initialValues: {
-        email: ''
-      },
-      initialDirty: {
-        email: false
-      }
-    })
+export const EmailSection: FC<Props> = ({ user }) => {
+  const { values, setFieldValue, onSubmit, isDirty } = useForm<FormValues>({
+    initialValues: {
+      email: user.email
+    },
+    initialDirty: {
+      email: false
+    }
+  })
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -42,18 +42,6 @@ export const EmailSection: FC<Props> = () => {
   const handleSubmit = useCallback(({ email }: FormValues) => {
     debugger
   }, [])
-
-  useEffect(() => {
-    if (
-      status === 'authenticated' &&
-      session &&
-      session.user &&
-      session.user.email
-    ) {
-      setFieldValue('email', session.user.email)
-      resetDirty({ email: session.user.email })
-    }
-  }, [status, session])
 
   return (
     <form onSubmit={onSubmit(handleSubmit)}>

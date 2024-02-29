@@ -34,15 +34,15 @@ import {
 import { FC, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import classes from '~/styles/shell-header.module.css'
-import { useSession } from 'next-auth/react'
 import { logout } from '~/app/actions'
+import { useAuth } from '~/hooks'
 
 interface Props {}
 
 export const ShellHeader: FC<Props> = () => {
   const router = useRouter()
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [opened, setOpened] = useState(false)
   const { colorScheme, setColorScheme } = useMantineColorScheme({
     keepTransitions: true
@@ -79,18 +79,14 @@ export const ShellHeader: FC<Props> = () => {
             >
               <MenuTarget>
                 <UnstyledButton onClick={() => setOpened(!opened)}>
-                  <Avatar src={session?.user?.image}></Avatar>
+                  <Avatar src={user.image}></Avatar>
                 </UnstyledButton>
               </MenuTarget>
               <MenuDropdown ref={menuRef}>
                 <MenuLabel className={classes.loggedIn}>
                   <Flex direction='column'>
-                    <Text className={classes.username}>
-                      {session?.user?.name}
-                    </Text>
-                    <Text className={classes.email}>
-                      {session?.user?.email}
-                    </Text>
+                    <Text className={classes.username}>{user.name}</Text>
+                    <Text className={classes.email}>{user.email}</Text>
                   </Flex>
                 </MenuLabel>
                 <MenuDivider></MenuDivider>

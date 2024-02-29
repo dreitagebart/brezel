@@ -1,14 +1,14 @@
 'use client'
 
 import { Avatar, Card, CardSection, Group, Text, Title } from '@mantine/core'
-import { useSession } from 'next-auth/react'
 import { FC } from 'react'
+import { AuthUser } from '~/utils/types'
 
-interface Props {}
+interface Props {
+  user: AuthUser
+}
 
-export const AvatarSection: FC<Props> = () => {
-  const { data: session } = useSession()
-
+export const AvatarSection: FC<Props> = ({ user }) => {
   return (
     <Card bg='dark.8' withBorder padding='xl' shadow='xl'>
       <Title order={3}>Avatar</Title>
@@ -19,7 +19,7 @@ export const AvatarSection: FC<Props> = () => {
             Click on the avatar to upload a custom one from your files.
           </Text>
         </div>
-        <Avatar src={session?.user?.image} size='xl'></Avatar>
+        <Avatar src={user.image} size='xl'></Avatar>
       </Group>
       <CardSection
         style={{

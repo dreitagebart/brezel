@@ -1,12 +1,31 @@
 'use client'
 
 import { useForm } from '@mantine/form'
-import { Button, Drawer, Flex, Group, TextInput, Title } from '@mantine/core'
-import { ChangeEvent, useCallback } from 'react'
-import { IconPlus } from '@tabler/icons-react'
-import { createRepository } from '~/app/actions'
-import { useSession } from 'next-auth/react'
+import {
+  Button,
+  Combobox,
+  ComboboxDropdown,
+  ComboboxEmpty,
+  ComboboxOption,
+  ComboboxOptions,
+  ComboboxTarget,
+  Drawer,
+  Flex,
+  Group,
+  Loader,
+  Select,
+  Text,
+  TextInput,
+  Title,
+  useCombobox
+} from '@mantine/core'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { IconBrandGit, IconPlus } from '@tabler/icons-react'
+import { createRepository, selectGithubRepos } from '~/app/actions'
 import { Repository } from '@brezel/database'
+import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '~/hooks'
+import { GithubRepos } from '~/utils/types'
 
 interface Props {
   open: boolean
@@ -15,28 +34,56 @@ interface Props {
 }
 
 interface FormValues {
-  title: string
+  id: string
+  search: string
+  name: string
   url: string
 }
 
 export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const { values, setFieldValue, onSubmit, errors, reset } =
     useForm<FormValues>({
       initialValues: {
-        title: '',
+        id: '',
+        search: '',
+        name: '',
         url: ''
       },
       validate: {
-        title: (value) => (value ? null : 'Please set a title'),
+        name: (value) => (value ? null : 'Please set a title'),
         url: (value) => (value ? null : 'No url is specified')
       }
     })
-  const handleSubmit = useCallback(({ title, url }: FormValues) => {
+  const comboboxRepos = useCombobox({
+    onDropdownClose: () => comboboxRepos.resetSelectedOption()
+  })
+  const { data: dataRepos, isLoading: isLoadingRepos } = useQuery<GithubRepos>({
+    queryKey: ['githubRepos'],
+    queryFn: () => selectGithubRepos(user.id, user.name),
+    enabled: open
+  })
+  const shouldFilterRepos = !dataRepos?.some(
+    (repo) => repo.name === values.search
+  )
+  const filteredRepos = shouldFilterRepos
+    ? dataRepos?.filter((repo) =>
+        repo.name.toLowerCase().includes(values.search.toLowerCase().trim())
+      )
+    : dataRepos
+  const options = filteredRepos?.map(({ id, full_name }) => (
+    <ComboboxOption my='xs' key={id} value={String(id)}>
+      <Group gap='xs'>
+        <IconBrandGit></IconBrandGit>
+        <Text>{full_name}</Text>
+      </Group>
+    </ComboboxOption>
+  ))
+  const handleSubmit = useCallback(({ name, url }: FormValues) => {
     createRepository({
-      title,
+      title: name,
       url,
-      createdBy: { connect: { email: session!.user!.email! } }
+      createdBy: { connect: { email: user.email } }
     })
       .then((repo) => {
         reset()
@@ -54,6 +101,10 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
     [setFieldValue]
   )
 
+  useEffect(() => {
+    comboboxRepos.selectFirstOption()
+  }, [values.search])
+
   return (
     <Drawer
       closeOnClickOutside={false}
@@ -67,17 +118,53 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
       title='New repository'
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
     >
-      <Title>Let's create something new...</Title>
+      <Title order={2}>Let's build something new...</Title>
       <form onSubmit={onSubmit(handleSubmit)}>
         <Flex mt='xl' direction='column' gap='xl'>
-          <TextInput
-            error={errors.title}
-            label='Title'
-            placeholder='Repository name'
-            value={values.title}
-            onChange={handleChange}
-            name='title'
-          ></TextInput>
+          <Combobox
+            onOptionSubmit={(optionValue) => {
+              const repo = dataRepos?.find(
+                ({ id }) => String(id) === optionValue
+              )
+
+              if (repo) {
+                setFieldValue('search', repo.name)
+                setFieldValue('id', String(repo.id))
+                setFieldValue('url', repo.html_url)
+                setFieldValue('name', repo.name)
+              }
+              comboboxRepos.closeDropdown()
+            }}
+            store={comboboxRepos}
+            withinPortal={false}
+          >
+            <ComboboxTarget>
+              <TextInput
+                label='Select your github repository...'
+                placeholder='Select or pick'
+                value={values.search}
+                onChange={(event) => {
+                  setFieldValue('search', event.target.value)
+                  comboboxRepos.openDropdown()
+                }}
+                onClick={() => comboboxRepos.openDropdown()}
+                onFocus={() => comboboxRepos.openDropdown()}
+                onBlur={() => comboboxRepos.closeDropdown()}
+                rightSection={
+                  isLoadingRepos ? <Loader size={18}></Loader> : null
+                }
+              ></TextInput>
+            </ComboboxTarget>
+            <ComboboxDropdown>
+              <ComboboxOptions>
+                {options?.length === 0 ? (
+                  <ComboboxEmpty>No repo found</ComboboxEmpty>
+                ) : (
+                  options
+                )}
+              </ComboboxOptions>
+            </ComboboxDropdown>
+          </Combobox>
           <TextInput
             error={errors.url}
             label='Git URL'
@@ -85,9 +172,14 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
             value={values.url}
             onChange={handleChange}
             name='url'
+            readOnly
           ></TextInput>
           <Group justify='right'>
-            <Button leftSection={<IconPlus></IconPlus>} type='submit'>
+            <Button
+              disabled={shouldFilterRepos}
+              leftSection={<IconPlus></IconPlus>}
+              type='submit'
+            >
               create
             </Button>
             <Button

@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   description: 'the web deployment platform'
 }
 
-const Layout = ({ children }: PropsWithChildren) => {
+const RootLayout = ({ children }: PropsWithChildren) => {
+  console.log('rootlayout')
   return (
     <html lang='en'>
       <head>
@@ -24,4 +25,4 @@ const Layout = ({ children }: PropsWithChildren) => {
   )
 }
 
-export default Layout
+export default RootLayout

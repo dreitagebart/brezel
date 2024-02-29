@@ -11,20 +11,21 @@ import {
   Title
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { useSession } from 'next-auth/react'
 import { ChangeEvent, FC, useCallback, useEffect } from 'react'
+import { AuthUser } from '~/utils/types'
 
-interface Props {}
+interface Props {
+  user: AuthUser
+}
 
 interface FormValues {
   name: string
 }
 
-export const DisplaynameSection: FC<Props> = () => {
-  const { data: session, status } = useSession()
+export const DisplaynameSection: FC<Props> = ({ user }) => {
   const { values, setFieldValue, onSubmit } = useForm<FormValues>({
     initialValues: {
-      name: ''
+      name: user.name
     }
   })
 
@@ -38,17 +39,6 @@ export const DisplaynameSection: FC<Props> = () => {
   const handleSubmit = useCallback(({ name }: FormValues) => {
     debugger
   }, [])
-
-  useEffect(() => {
-    if (
-      status === 'authenticated' &&
-      session &&
-      session.user &&
-      session.user.name
-    ) {
-      setFieldValue('name', session.user.name)
-    }
-  }, [status, session])
 
   return (
     <form onSubmit={onSubmit(handleSubmit)}>

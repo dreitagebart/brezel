@@ -1,3 +1,5 @@
+'use client'
+
 import { Stack } from '@mantine/core'
 import { NextPage } from 'next'
 import {
@@ -5,13 +7,16 @@ import {
   DisplaynameSection,
   EmailSection
 } from '~/components/sections/account/general'
+import { useAuth } from '~/hooks'
 
 const Page: NextPage = () => {
+  const { user } = useAuth()
+
   return (
     <Stack>
-      <AvatarSection></AvatarSection>
-      <DisplaynameSection></DisplaynameSection>
-      <EmailSection></EmailSection>
+      <AvatarSection user={user}></AvatarSection>
+      <DisplaynameSection user={user}></DisplaynameSection>
+      <EmailSection user={user}></EmailSection>
     </Stack>
   )
 }
