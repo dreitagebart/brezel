@@ -13,14 +13,13 @@ import {
   Flex,
   Group,
   Loader,
-  Select,
   Text,
   TextInput,
   Title,
   useCombobox
 } from '@mantine/core'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { IconBrandGit, IconPlus } from '@tabler/icons-react'
+import { ChangeEvent, useCallback, useEffect } from 'react'
+import { IconBrandGit, IconPlus, IconSearch } from '@tabler/icons-react'
 import { createRepository, selectGithubRepos } from '~/app/actions'
 import { Repository } from '@brezel/database'
 import { useQuery } from '@tanstack/react-query'
@@ -136,12 +135,12 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
               comboboxRepos.closeDropdown()
             }}
             store={comboboxRepos}
-            withinPortal={false}
+            withinPortal={true}
           >
             <ComboboxTarget>
               <TextInput
                 label='Select your github repository...'
-                placeholder='Select or pick'
+                placeholder='Search...'
                 value={values.search}
                 onChange={(event) => {
                   setFieldValue('search', event.target.value)
@@ -150,13 +149,14 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
                 onClick={() => comboboxRepos.openDropdown()}
                 onFocus={() => comboboxRepos.openDropdown()}
                 onBlur={() => comboboxRepos.closeDropdown()}
+                leftSection={<IconSearch></IconSearch>}
                 rightSection={
                   isLoadingRepos ? <Loader size={18}></Loader> : null
                 }
               ></TextInput>
             </ComboboxTarget>
             <ComboboxDropdown>
-              <ComboboxOptions>
+              <ComboboxOptions mah={280} style={{ overflow: 'auto' }}>
                 {options?.length === 0 ? (
                   <ComboboxEmpty>No repo found</ComboboxEmpty>
                 ) : (

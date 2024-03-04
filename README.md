@@ -3,7 +3,7 @@
 Brezel (ˈbreːtsl̩) is a Geraman word for pretzel. "Brezel" sounds similiar to vercel and this is what it nearly means. It's a vercel clone - a deployment platform for the web. The development is based on this blog post of vercel ["Behind the scenes of Vercel's infrastructure: Achieving optimal scalability and performance"](https://vercel.com/blog/behind-the-scenes-of-vercels-infrastructure)
 
 > [!NOTE]
-> This reposiory is heavily under development and only for learning and studying purpose.
+> This reposiory is heavily under development and currently for learning and studying purpose.
 
 ## Using this example
 

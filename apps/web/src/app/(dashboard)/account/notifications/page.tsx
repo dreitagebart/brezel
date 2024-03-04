@@ -1,12 +1,8 @@
-import { Title } from '@mantine/core'
 import { NextPage } from 'next'
+import { AccountNotificationsView } from '~/views'
 
 const Page: NextPage = () => {
-  return (
-    <>
-      <Title>Notifications</Title>
-    </>
-  )
+  return <AccountNotificationsView></AccountNotificationsView>
 }
 
 export default Page

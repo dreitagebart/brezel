@@ -14,7 +14,7 @@ dayjs.extend(relativeTime)
 
 export const RepositoryCard: FC<Props> = ({ data }) => {
   return (
-    <Card>
+    <Card shadow='xl' withBorder>
       <Group>
         <ThemeIcon radius='xl' size='md' variant='light'>
           <IconBrandGithubFilled size={18}></IconBrandGithubFilled>

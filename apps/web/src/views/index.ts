@@ -1,1 +1,7 @@
 export * from './dashboard-view'
+export * from './account-general-view'
+export * from './account-authentication-view'
+export * from './account-teams-view'
+export * from './account-tokens-view'
+export * from './account-deployment-protection-view'
+export * from './account-notifications-view'

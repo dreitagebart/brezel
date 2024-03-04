@@ -1,7 +1,8 @@
 .header {
   border: none;
+  /* background-color: black; */
 }
 
 .main {
-  padding-top: calc(var(--mantine-spacing-xl) + 100px);
+  /* padding-top: calc(var(--mantine-spacing-xl) + 100px); */
 }

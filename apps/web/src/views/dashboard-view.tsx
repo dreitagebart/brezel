@@ -1,42 +1,44 @@
 'use client'
 
 import {
+  ActionIcon,
   Button,
   Container,
   Grid,
   GridCol,
   Group,
-  Select,
+  Notification,
+  SegmentedControl,
   SimpleGrid,
+  Text,
+  TextInput,
   Title
 } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
+import { useDebouncedValue, useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { IconLayoutGrid, IconLayoutList, IconPlus } from '@tabler/icons-react'
+import {
+  IconFilterBolt,
+  IconLayoutGrid,
+  IconLayoutList,
+  IconPlus,
+  IconSearch,
+  IconX
+} from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 import { FC, useState } from 'react'
 import { getRepositories } from '~/app/actions'
 import { RepositoryCard } from '~/components/cards'
-import { CreateRepositoryForm, SearchRepositoryForm } from '~/components/forms'
+import { CreateRepositoryForm } from '~/components/forms'
 import { Layouts } from '~/utils/types'
 
 interface Props {
   initialData: Awaited<ReturnType<typeof getRepositories>>
 }
 
-const layoutOptions: Array<{ label: string; value: Layouts }> = [
-  {
-    label: 'Grid',
-    value: 'grid'
-  },
-  {
-    label: 'List',
-    value: 'list'
-  }
-]
-
 export const DashboardView: FC<Props> = ({ initialData }) => {
   const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 300)
+
   const [layout, setLayout] = useState<Layouts>('grid')
   const [createOpen, createHandler] = useDisclosure(false)
   const { data, refetch } = useQuery({
@@ -44,31 +46,58 @@ export const DashboardView: FC<Props> = ({ initialData }) => {
     queryFn: () => getRepositories(),
     initialData
   })
+  const filtered = data.filter((repo) =>
+    repo.title.toLowerCase().includes(debouncedSearch)
+  )
 
   return (
     <>
       <Container size='xl'>
         <Grid gutter='lg'>
           <GridCol span='auto'>
-            <SearchRepositoryForm
-              onChange={(value) => setSearch(value.toLowerCase())}
-            ></SearchRepositoryForm>
+            <TextInput
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              leftSection={<IconSearch></IconSearch>}
+              rightSection={
+                search && (
+                  <ActionIcon
+                    variant='transparent'
+                    size={20}
+                    onClick={() => setSearch('')}
+                  >
+                    <IconX></IconX>
+                  </ActionIcon>
+                )
+              }
+              placeholder='Search repositories...'
+            ></TextInput>
           </GridCol>
           <GridCol span={2}>
-            <Select
-              allowDeselect={false}
+            <SegmentedControl
               value={layout}
               onChange={(value) => setLayout(value as Layouts)}
-              data={layoutOptions}
-              leftSectionPointerEvents='none'
-              leftSection={
-                layout === 'list' ? (
-                  <IconLayoutList></IconLayoutList>
-                ) : layout === 'grid' ? (
-                  <IconLayoutGrid></IconLayoutGrid>
-                ) : null
-              }
-            ></Select>
+              data={[
+                {
+                  label: (
+                    <Group gap='xs' wrap='nowrap'>
+                      <IconLayoutGrid size={16}></IconLayoutGrid>
+                      <Text size='sm'>Grid</Text>
+                    </Group>
+                  ),
+                  value: 'grid'
+                },
+                {
+                  label: (
+                    <Group gap='xs' wrap='nowrap'>
+                      <IconLayoutList size={16}></IconLayoutList>
+                      <Text size='sm'>List</Text>
+                    </Group>
+                  ),
+                  value: 'list'
+                }
+              ]}
+            ></SegmentedControl>
           </GridCol>
           <GridCol span='content'>
             <Button
@@ -80,18 +109,38 @@ export const DashboardView: FC<Props> = ({ initialData }) => {
           </GridCol>
         </Grid>
         {data.length > 0 ? (
-          <SimpleGrid
-            mt='xl'
-            cols={layout === 'list' ? 1 : layout === 'grid' ? 3 : 1}
-          >
-            {data
-              .filter(({ title }) => title.toLowerCase().includes(search))
-              .map((repo) => {
+          filtered.length === 0 ? (
+            <Group mt='xl' justify='flex-start' miw={620}>
+              <Notification
+                color='red.5'
+                title={
+                  <Group gap='xs'>
+                    <IconFilterBolt></IconFilterBolt>
+                    <Text size='lg'>Nothing found</Text>
+                  </Group>
+                }
+                withCloseButton={false}
+              >
+                <Group>
+                  <Text>No repositories match your search criteria...</Text>
+                  {/* <UnstyledButton variant='light' onClick={() => setSearch('')}>
+                    <Text fw='bold'>clear filter</Text>
+                  </UnstyledButton> */}
+                </Group>
+              </Notification>
+            </Group>
+          ) : (
+            <SimpleGrid
+              mt='xl'
+              cols={layout === 'list' ? 1 : layout === 'grid' ? 3 : 1}
+            >
+              {filtered.map((repo) => {
                 return (
                   <RepositoryCard key={repo.id} data={repo}></RepositoryCard>
                 )
               })}
-          </SimpleGrid>
+            </SimpleGrid>
+          )
         ) : (
           <Group mt='xl' justify='center'>
             <Title order={3}>There are no repositories yet</Title>

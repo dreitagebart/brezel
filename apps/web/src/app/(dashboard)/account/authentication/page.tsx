@@ -1,12 +1,8 @@
-import { Title } from '@mantine/core'
 import { NextPage } from 'next'
+import { AccountAuthenticationView } from '~/views'
 
 const Page: NextPage = () => {
-  return (
-    <>
-      <Title>Authentication</Title>
-    </>
-  )
+  return <AccountAuthenticationView></AccountAuthenticationView>
 }
 
 export default Page
