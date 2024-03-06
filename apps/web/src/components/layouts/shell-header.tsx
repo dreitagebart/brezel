@@ -1,5 +1,6 @@
 'use client'
 
+import classes from '~/styles/shell-header.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -15,9 +16,6 @@ import {
   MenuLabel,
   MenuTarget,
   Select,
-  Tabs,
-  TabsList,
-  TabsTab,
   Text,
   UnstyledButton,
   useMantineColorScheme
@@ -32,16 +30,16 @@ import {
   IconSun
 } from '@tabler/icons-react'
 import { FC, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import classes from '~/styles/shell-header.module.css'
 import { logout } from '~/app/actions'
 import { useAuth } from '~/hooks'
+import { LayoutRoutes } from '~/utils/types'
+import { DashboardMenu, RepositoryMenu } from '~/components/menus'
 
-interface Props {}
+interface Props {
+  route: LayoutRoutes
+}
 
-export const ShellHeader: FC<Props> = () => {
-  const router = useRouter()
-  const pathname = usePathname()
+export const ShellHeader: FC<Props> = ({ route }) => {
   const { user } = useAuth()
   const [opened, setOpened] = useState(false)
   const { colorScheme, setColorScheme } = useMantineColorScheme({
@@ -153,19 +151,11 @@ export const ShellHeader: FC<Props> = () => {
           </Flex>
         </Flex>
         <Flex w='100%'>
-          <Tabs
-            w='100%'
-            classNames={{
-              list: classes.tabsList
-            }}
-            value={`/${pathname.split('/')[1]}`}
-            onChange={(value) => router.push(String(value))}
-          >
-            <TabsList>
-              <TabsTab value='/dashboard'>Overview</TabsTab>
-              <TabsTab value='/account'>Settings</TabsTab>
-            </TabsList>
-          </Tabs>
+          {route === 'dashboard' ? (
+            <DashboardMenu></DashboardMenu>
+          ) : route === 'repository' ? (
+            <RepositoryMenu></RepositoryMenu>
+          ) : null}
         </Flex>
       </Flex>
     </AppShellHeader>

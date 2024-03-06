@@ -47,12 +47,12 @@ export const DashboardView: FC<Props> = ({ initialData }) => {
     initialData
   })
   const filtered = data.filter((repo) =>
-    repo.title.toLowerCase().includes(debouncedSearch)
+    repo.name.toLowerCase().includes(debouncedSearch)
   )
 
   return (
     <>
-      <Container size='xl'>
+      <Container size='xl' mt='xl'>
         <Grid gutter='lg'>
           <GridCol span='auto'>
             <TextInput
@@ -75,6 +75,12 @@ export const DashboardView: FC<Props> = ({ initialData }) => {
           </GridCol>
           <GridCol span={2}>
             <SegmentedControl
+              styles={{
+                root: {
+                  backgroundColor: 'transparent'
+                }
+              }}
+              color='orange.5'
               value={layout}
               onChange={(value) => setLayout(value as Layouts)}
               data={[

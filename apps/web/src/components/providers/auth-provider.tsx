@@ -11,7 +11,9 @@ const initialUser: AuthUser = {
   id: '',
   email: '',
   name: '',
-  image: ''
+  image: '',
+  provider: '',
+  providerAccountId: ''
 }
 
 export const AuthContext = createContext<{

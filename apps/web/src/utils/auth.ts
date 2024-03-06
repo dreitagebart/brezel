@@ -14,6 +14,8 @@ declare module 'next-auth' {
       email: string
       emailVerified?: null | boolean
       image: string
+      provider: string
+      providerAccountId: string
     }
   }
 }
@@ -28,11 +30,22 @@ export const { handlers, auth, signIn, signOut }: NextAuthResult = NextAuth({
     error: '/auth-error'
   },
   callbacks: {
-    session: ({ session, token, user }) => {
+    session: async ({ session, token, user }) => {
       // console.log('session callback!')
       // console.log('session - session:', JSON.stringify(session, null, 2))
       // console.log('session - token:', JSON.stringify(token, null, 2))
       // console.log('session - user:', JSON.stringify(user, null, 2))
+
+      const account = await client.account.findFirstOrThrow({
+        where: {
+          userId: user.id
+        }
+      })
+
+      // console.log('accountInfo:', JSON.stringify(account, null, 2))
+
+      session.user.provider = account.provider
+      session.user.providerAccountId = account.providerAccountId
 
       return session
     }

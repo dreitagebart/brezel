@@ -1,30 +1,39 @@
 'use client'
 
+import dayjs from 'dayjs'
 import { useForm } from '@mantine/form'
 import {
+  ActionIcon,
   Button,
-  Combobox,
-  ComboboxDropdown,
-  ComboboxEmpty,
-  ComboboxOption,
-  ComboboxOptions,
-  ComboboxTarget,
   Drawer,
   Flex,
   Group,
-  Loader,
+  Notification,
+  Paper,
+  Select,
+  SelectProps,
+  Stack,
   Text,
   TextInput,
   Title,
   useCombobox
 } from '@mantine/core'
 import { ChangeEvent, useCallback, useEffect } from 'react'
-import { IconBrandGit, IconPlus, IconSearch } from '@tabler/icons-react'
-import { createRepository, selectGithubRepos } from '~/app/actions'
+import {
+  IconBrandBitbucket,
+  IconBrandGithub,
+  IconBrandGitlab,
+  IconCheck,
+  IconSearch,
+  IconX
+} from '@tabler/icons-react'
+import { selectGithubRepos } from '~/app/actions'
 import { Repository } from '@brezel/database'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '~/hooks'
 import { GithubRepos } from '~/utils/types'
+import { RepositoryImportCard } from '../cards'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   open: boolean
@@ -33,25 +42,56 @@ interface Props {
 }
 
 interface FormValues {
-  id: string
+  username: string
+  provider: string
+  repoId: string
+  repoName: string
+  repoUrl: string
   search: string
-  name: string
-  url: string
 }
 
+const iconProps = {
+  stroke: 1.5,
+  color: 'currentColor',
+  opacity: 0.6,
+  size: 18
+}
+
+const providerIcons: Record<string, React.ReactNode> = {
+  github: <IconBrandGithub {...iconProps} />,
+  gitlab: <IconBrandGitlab {...iconProps} />,
+  bitbucket: <IconBrandBitbucket {...iconProps} />
+}
+
+const renderSelectOption: SelectProps['renderOption'] = ({
+  option,
+  checked
+}) => (
+  <Group flex='1' gap='xs'>
+    {providerIcons[option.value]}
+    {option.label}
+    {checked && (
+      <IconCheck style={{ marginInlineStart: 'auto' }} {...iconProps} />
+    )}
+  </Group>
+)
+
 export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
+  const router = useRouter()
   const { user } = useAuth()
   const { values, setFieldValue, onSubmit, errors, reset } =
     useForm<FormValues>({
       initialValues: {
-        id: '',
-        search: '',
-        name: '',
-        url: ''
+        provider: user.provider,
+        username: '',
+        repoId: '',
+        repoName: '',
+        repoUrl: '',
+        search: ''
       },
       validate: {
-        name: (value) => (value ? null : 'Please set a title'),
-        url: (value) => (value ? null : 'No url is specified')
+        repoName: (value) => (value ? null : 'Please set a title'),
+        repoUrl: (value) => (value ? null : 'No url is specified')
       }
     })
   const comboboxRepos = useCombobox({
@@ -59,7 +99,7 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
   })
   const { data: dataRepos, isLoading: isLoadingRepos } = useQuery<GithubRepos>({
     queryKey: ['githubRepos'],
-    queryFn: () => selectGithubRepos(user.id, user.name),
+    queryFn: () => selectGithubRepos(user.id),
     enabled: open
   })
   const shouldFilterRepos = !dataRepos?.some(
@@ -70,34 +110,29 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
         repo.name.toLowerCase().includes(values.search.toLowerCase().trim())
       )
     : dataRepos
-  const options = filteredRepos?.map(({ id, full_name }) => (
-    <ComboboxOption my='xs' key={id} value={String(id)}>
-      <Group gap='xs'>
-        <IconBrandGit></IconBrandGit>
-        <Text>{full_name}</Text>
-      </Group>
-    </ComboboxOption>
-  ))
-  const handleSubmit = useCallback(({ name, url }: FormValues) => {
-    createRepository({
-      title: name,
-      url,
-      createdBy: { connect: { email: user.email } }
-    })
-      .then((repo) => {
-        reset()
-        onChange(false)
-        onSuccess(repo)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }, [])
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setFieldValue(event.target.name, event.target.value)
     },
     [setFieldValue]
+  )
+  const handleSelect = useCallback(
+    ({
+      provider,
+      owner,
+      repo,
+      id
+    }: {
+      provider: string
+      owner: string
+      repo: string
+      id: string
+    }) => {
+      router.push(
+        `/new/import?provider=${provider}&owner=${owner}&repo=${repo}&id=${id}`
+      )
+    },
+    []
   )
 
   useEffect(() => {
@@ -118,82 +153,88 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
       overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
     >
       <Title order={2}>Let's build something new...</Title>
-      <form onSubmit={onSubmit(handleSubmit)}>
-        <Flex mt='xl' direction='column' gap='xl'>
-          <Combobox
-            onOptionSubmit={(optionValue) => {
-              const repo = dataRepos?.find(
-                ({ id }) => String(id) === optionValue
-              )
-
-              if (repo) {
-                setFieldValue('search', repo.name)
-                setFieldValue('id', String(repo.id))
-                setFieldValue('url', repo.html_url)
-                setFieldValue('name', repo.name)
-              }
-              comboboxRepos.closeDropdown()
-            }}
-            store={comboboxRepos}
-            withinPortal={true}
+      <Flex mt='xl' direction='row' gap='md' w='100%'>
+        <Select
+          data={[
+            {
+              value: 'github',
+              label: 'Github'
+            },
+            {
+              value: 'gitlab',
+              label: 'Gitlab'
+            },
+            {
+              value: 'bitbucket',
+              label: 'Bitbucket'
+            }
+          ]}
+          leftSection={providerIcons[values.provider]}
+          leftSectionPointerEvents='none'
+          value='github'
+          placeholder='Git provider'
+          renderOption={renderSelectOption}
+        ></Select>
+        <TextInput
+          w='100%'
+          leftSection={<IconSearch></IconSearch>}
+          placeholder='Search repository...'
+          value={values.search}
+          onChange={handleChange}
+          name='search'
+          rightSection={
+            values.search.length > 0 && (
+              <ActionIcon
+                size='sm'
+                variant='transparent'
+                onClick={() => setFieldValue('search', '')}
+              >
+                <IconX></IconX>
+              </ActionIcon>
+            )
+          }
+        ></TextInput>
+      </Flex>
+      <Stack mt='lg'>
+        {filteredRepos?.length === 0 ? (
+          <Notification
+            title='No Results Found'
+            onClose={() => setFieldValue('search', '')}
           >
-            <ComboboxTarget>
-              <TextInput
-                label='Select your github repository...'
-                placeholder='Search...'
-                value={values.search}
-                onChange={(event) => {
-                  setFieldValue('search', event.target.value)
-                  comboboxRepos.openDropdown()
+            <Text>
+              Your search for{' '}
+              <Text span fw='bold' c='white'>
+                "{values.search}"
+              </Text>{' '}
+              did not return any results.
+            </Text>
+            <Text>
+              Try selecting a different Git account or organization on the top
+              left.
+            </Text>
+          </Notification>
+        ) : (
+          filteredRepos?.slice(0, 5).map(({ name, id, updated_at, owner }) => {
+            return (
+              <RepositoryImportCard
+                key={id}
+                data={{
+                  name,
+                  updatedAt: updated_at
                 }}
-                onClick={() => comboboxRepos.openDropdown()}
-                onFocus={() => comboboxRepos.openDropdown()}
-                onBlur={() => comboboxRepos.closeDropdown()}
-                leftSection={<IconSearch></IconSearch>}
-                rightSection={
-                  isLoadingRepos ? <Loader size={18}></Loader> : null
+                onClick={() =>
+                  handleSelect({
+                    id: String(id),
+                    provider: user.provider,
+                    repo: name,
+                    owner: owner.login
+                  })
                 }
-              ></TextInput>
-            </ComboboxTarget>
-            <ComboboxDropdown>
-              <ComboboxOptions mah={280} style={{ overflow: 'auto' }}>
-                {options?.length === 0 ? (
-                  <ComboboxEmpty>No repo found</ComboboxEmpty>
-                ) : (
-                  options
-                )}
-              </ComboboxOptions>
-            </ComboboxDropdown>
-          </Combobox>
-          <TextInput
-            error={errors.url}
-            label='Git URL'
-            placeholder='Repository url'
-            value={values.url}
-            onChange={handleChange}
-            name='url'
-            readOnly
-          ></TextInput>
-          <Group justify='right'>
-            <Button
-              disabled={shouldFilterRepos}
-              leftSection={<IconPlus></IconPlus>}
-              type='submit'
-            >
-              create
-            </Button>
-            <Button
-              variant='light'
-              onClick={() => {
-                reset()
-                onChange(false)
-              }}
-            >
-              Cancel
-            </Button>
-          </Group>
-        </Flex>
-      </form>
+              ></RepositoryImportCard>
+            )
+          })
+        )}
+      </Stack>
     </Drawer>
   )
 }

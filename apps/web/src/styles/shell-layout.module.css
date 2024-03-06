@@ -1,8 +1,20 @@
 .header {
   border: none;
-  /* background-color: black; */
+  background-color: light-dark(
+    var(--mantine-color-gray-9),
+    var(--mantine-color-dark-9)
+  );
+  /* margin-bottom: 120px; */
 }
 
 .main {
-  /* padding-top: calc(var(--mantine-spacing-xl) + 100px); */
+  /* background-color: transparent; */
+  /* margin-top: calc(var(--mantine-spacing-xl) + 100px); */
+}
+
+.root {
+  background-color: light-dark(
+    var(--mantine-color-gray-2),
+    var(--mantine-color-dark-8)
+  );
 }

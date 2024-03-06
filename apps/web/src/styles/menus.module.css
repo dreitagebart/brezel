@@ -1,0 +1,30 @@
+.root {
+  /* border: 1px solid red; */
+}
+
+.list {
+  /* border-color: red !important; */
+  padding-left: 20px;
+}
+
+.tab {
+  transition: all 300ms ease-in;
+  color: var(--mantine-color-gray-4);
+
+  &:hover {
+    border-color: light-dark(
+      var(--mantine-color-orange-7),
+      var(--mantine-color-orange-7)
+    ) !important;
+
+    background-color: light-dark(
+      var(--mantine-color-gray-9),
+      var(--mantine-color-dark-8)
+    );
+  }
+
+  &[data-active] {
+    border-color: var(--mantine-color-orange-5);
+    color: var(--mantine-color-white);
+  }
+}

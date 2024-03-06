@@ -1,5 +1,6 @@
 'use client'
 
+import classes from '~/styles/sections.module.css'
 import { Avatar, Card, CardSection, Group, Text, Title } from '@mantine/core'
 import { FC } from 'react'
 import { AuthUser } from '~/utils/types'
@@ -10,7 +11,7 @@ interface Props {
 
 export const AvatarSection: FC<Props> = ({ user }) => {
   return (
-    <Card bg='dark.8' withBorder padding='xl' shadow='xl'>
+    <Card className={classes.wrapper}>
       <Title order={3}>Avatar</Title>
       <Group justify='space-between'>
         <div>
@@ -21,13 +22,7 @@ export const AvatarSection: FC<Props> = ({ user }) => {
         </div>
         <Avatar src={user.image} size='xl'></Avatar>
       </Group>
-      <CardSection
-        style={{
-          marginTop: 'var(--mantine-spacing-xl)',
-          borderTop: '1px solid var(--mantine-color-dark-4)',
-          padding: 'var(--mantine-spacing-xl)'
-        }}
-      >
+      <CardSection className={classes.separator}>
         <Text c='dimmed'>An avatar is optional but strongly recommended</Text>
       </CardSection>
     </Card>

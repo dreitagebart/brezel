@@ -1,5 +1,6 @@
 'use client'
 
+import classes from '~/styles/sections.module.css'
 import {
   Button,
   Card,
@@ -45,7 +46,7 @@ export const EmailSection: FC<Props> = ({ user }) => {
 
   return (
     <form onSubmit={onSubmit(handleSubmit)}>
-      <Card bg='dark.8' withBorder padding='xl' shadow='xl'>
+      <Card className={classes.wrapper}>
         <Title order={3}>eMail</Title>
         <Stack>
           <Text>
@@ -61,13 +62,7 @@ export const EmailSection: FC<Props> = ({ user }) => {
             ></TextInput>
           </Group>
         </Stack>
-        <CardSection
-          style={{
-            marginTop: 'var(--mantine-spacing-xl)',
-            borderTop: '1px solid var(--mantine-color-dark-4)',
-            padding: 'var(--mantine-spacing-xl)'
-          }}
-        >
+        <CardSection className={classes.separator}>
           <Group justify='space-between'>
             <Text c='dimmed'>We will email you to verify the change.</Text>
             <Button type='submit' disabled={!isDirty('email')}>

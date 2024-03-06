@@ -1,0 +1,22 @@
+.wrapper {
+  border-radius: var(--mantine-radius-md);
+  border: light-dark(
+    1px solid var(--mantine-color-gray-3),
+    1px solid var(--mantine-color-dark-6)
+  );
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-9)
+  );
+  box-shadow: var(--mantine-shadow-xl);
+  margin-bottom: var(--mantine-spacing-lg);
+}
+
+.separator {
+  margin-top: var(--mantine-spacing-xl);
+  border-top: light-dark(
+    1px solid var(--mantine-color-gray-3),
+    1px solid var(--mantine-color-dark-6)
+  );
+  padding: var(--mantine-spacing-xl);
+}

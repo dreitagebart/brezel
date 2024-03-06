@@ -20,7 +20,7 @@ export const RepositoryCard: FC<Props> = ({ data }) => {
           <IconBrandGithubFilled size={18}></IconBrandGithubFilled>
         </ThemeIcon>
         <Group>
-          <Text fw='bold'>{data.title}</Text>
+          <Text fw='bold'>{data.name}</Text>
         </Group>
         <UnstyledButton component={Link} href={data.url} target='_blank'>
           <Group gap='xs'>

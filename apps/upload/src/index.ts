@@ -1,16 +1,12 @@
 import cors from 'cors'
 import simpleGit from 'simple-git'
 import express, { Request, Response } from 'express'
-import { dirname, join } from 'path'
-import { fileURLToPath } from 'url'
+import { join } from 'path'
 import { createClient } from 'redis'
+import { getErrorMessage, createId, createSlug } from '@brezel/shared/utils'
+import { TypedRequestBody, TypedResponseJSON } from '@brezel/shared/types'
+import { config } from '@brezel/shared/config'
 
-import { TypedRequestBody, TypedResponseJSON } from './types'
-import { createId, createSlug } from './utils'
-import { getErrorMessage } from './error'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const outputPath = join(__dirname, '..', 'public', 'repos')
 const app = express()
 const pub = createClient()
 const sub = createClient()
@@ -46,7 +42,7 @@ app.post(
 
     const concatId = `${slug}-${id}`
 
-    await simpleGit().clone(repository, join(outputPath, concatId))
+    await simpleGit().clone(repository, join(config.path.repos, concatId))
 
     pub.lPush('build-queue', concatId)
     pub.hSet('status', concatId, 'uploaded')

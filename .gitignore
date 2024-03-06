@@ -39,3 +39,8 @@ yarn-error.log*
 
 
 /docker/redis/data
+
+public/output/**
+public/repos/**
+!public/output/**/.gitkeep
+!public/repos/**/.gitkeep

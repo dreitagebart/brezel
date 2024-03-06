@@ -29,16 +29,20 @@ model Developer {
 
 model Repository {
   id          String       @id @default(uuid())
-  title       String
+  repoId      String
+  repoName    String
+  name        String
   url         String
   createdAt   DateTime     @default(now())
   deployments Deployment[]
   userId      String
   createdBy   User         @relation(fields: [userId], references: [id])
+  provider    String
 }
 
 model Deployment {
   id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
   repositoryId String
   repository   Repository @relation(fields: [repositoryId], references: [id])
 }

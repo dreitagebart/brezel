@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 }
 
 const RootLayout = ({ children }: PropsWithChildren) => {
-  console.log('rootlayout')
   return (
     <html lang='en'>
       <head>

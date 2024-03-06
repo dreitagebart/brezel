@@ -1,0 +1,35 @@
+{
+  "name": "@brezel/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./config": {
+      "import": "./dist/config.js",
+      "types": "./dist/config.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@brezel/typescript": "workspace:*",
+    "@types/express": "^4.17.21",
+    "@types/express-serve-static-core": "^4.17.43",
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@sindresorhus/slugify": "^2.2.1",
+    "nanoid": "^5.0.6"
+  }
+}

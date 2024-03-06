@@ -1,5 +1,6 @@
 'use client'
 
+import classes from '~/styles/sections.module.css'
 import {
   Button,
   Card,
@@ -11,7 +12,7 @@ import {
   Title
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { ChangeEvent, FC, useCallback, useEffect } from 'react'
+import { ChangeEvent, FC, useCallback } from 'react'
 import { AuthUser } from '~/utils/types'
 
 interface Props {
@@ -42,7 +43,7 @@ export const DisplaynameSection: FC<Props> = ({ user }) => {
 
   return (
     <form onSubmit={onSubmit(handleSubmit)}>
-      <Card bg='dark.8' withBorder padding='xl' shadow='xl'>
+      <Card className={classes.wrapper}>
         <Title order={3}>Display name</Title>
         <Stack>
           <Text>
@@ -58,13 +59,7 @@ export const DisplaynameSection: FC<Props> = ({ user }) => {
             ></TextInput>
           </Group>
         </Stack>
-        <CardSection
-          style={{
-            marginTop: 'var(--mantine-spacing-xl)',
-            borderTop: '1px solid var(--mantine-color-dark-4)',
-            padding: 'var(--mantine-spacing-xl)'
-          }}
-        >
+        <CardSection className={classes.separator}>
           <Group justify='space-between'>
             <Text c='dimmed'>Please use 32 characters at maximum.</Text>
             <Button type='submit'>Save</Button>

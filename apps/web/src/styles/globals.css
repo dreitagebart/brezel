@@ -1,0 +1,21 @@
+.mantine-Tabs-root {
+  /* border: 4px solid blue; */
+  /* background-color: red; */
+}
+
+.mantine-Tabs-list {
+  /* border-bottom: 3px solid green !important; */
+}
+
+.mantine-NavLink-root {
+  &[data-active] {
+    color: light-dark(
+      var(--mantine-color-orange-6),
+      var(--mantine-color-orange-4)
+    );
+    background-color: light-dark(
+      var(--mantine-color-white),
+      var(--mantine-color-dark-9)
+    ) !important;
+  }
+}

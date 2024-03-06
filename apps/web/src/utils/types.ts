@@ -3,6 +3,8 @@ export interface AuthUser {
   email: string
   name: string
   image: string
+  provider: string
+  providerAccountId: string
 }
 
 export type Layouts = 'grid' | 'list'
@@ -128,3 +130,5 @@ export type GithubRepo = {
 }
 
 export type GithubRepos = Array<GithubRepo>
+
+export type LayoutRoutes = 'dashboard' | 'repository' | 'none'

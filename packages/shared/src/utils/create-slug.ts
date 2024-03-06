@@ -1,10 +1,4 @@
 import slugify from '@sindresorhus/slugify'
-import { customAlphabet } from 'nanoid'
-
-export const createId = customAlphabet(
-  '0123456789abcdefghilklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  5
-)
 
 export const createSlug = (respository: string) => {
   const url = new URL(respository)

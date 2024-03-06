@@ -17,7 +17,7 @@ const Layout = async ({ children }: PropsWithChildren) => {
         ...session.user
       }}
     >
-      <ShellLayout>{children}</ShellLayout>
+      <ShellLayout route='dashboard'>{children}</ShellLayout>
     </AuthProvider>
   )
 }

@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  test:
+    image: image/here
+    container_name: test
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.test.loadbalancer.server.port=3000
+
+networks:
+  proxy:
+    external: true

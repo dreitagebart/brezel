@@ -1,12 +1,10 @@
 import { readdirSync } from 'fs'
 import { createClient, commandOptions } from 'redis'
-import { fileURLToPath } from 'url'
-import { join, dirname } from 'path'
+import { join } from 'path'
 import { exec } from 'child_process'
-import { PackageManagers } from './types'
+import { PackageManagers } from '@brezel/shared/types'
+import { config } from '@brezel/shared/config'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const outputPath = join(__dirname, '..', '..', 'upload', 'public', 'repos')
 const pub = createClient()
 const sub = createClient()
 
@@ -45,7 +43,7 @@ const buildProject = (id: string) => {
 
     const child = exec(
       `cd ${join(
-        outputPath,
+        config.path.output,
         id
       )} && ${pkgManager} install && ${pkgManager} run build`
     )
@@ -65,7 +63,7 @@ const buildProject = (id: string) => {
 }
 
 const detectPackageManager = (id: string): PackageManagers => {
-  const files = readdirSync(join(outputPath, id))
+  const files = readdirSync(join(config.path.output, id))
 
   if (files.includes('yarn.lock')) {
     return 'yarn'
