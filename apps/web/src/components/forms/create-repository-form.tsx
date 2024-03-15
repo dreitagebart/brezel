@@ -1,15 +1,13 @@
 'use client'
 
-import dayjs from 'dayjs'
 import { useForm } from '@mantine/form'
 import {
   ActionIcon,
-  Button,
   Drawer,
   Flex,
   Group,
+  Loader,
   Notification,
-  Paper,
   Select,
   SelectProps,
   Stack,
@@ -18,7 +16,7 @@ import {
   Title,
   useCombobox
 } from '@mantine/core'
-import { ChangeEvent, useCallback, useEffect } from 'react'
+import { ChangeEvent, ReactNode, useCallback, useEffect } from 'react'
 import {
   IconBrandBitbucket,
   IconBrandGithub,
@@ -27,13 +25,14 @@ import {
   IconSearch,
   IconX
 } from '@tabler/icons-react'
-import { selectGithubRepos } from '~/app/actions'
+import { selectGitProviders, selectRepositories } from '~/app/actions'
 import { Repository } from '@brezel/database'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '~/hooks'
-import { GithubRepos } from '~/utils/types'
+import { GitRepositories } from '~/utils/types'
 import { RepositoryImportCard } from '../cards'
 import { useRouter } from 'next/navigation'
+import { GitProviders } from '@brezel/shared/types'
 
 interface Props {
   open: boolean
@@ -43,7 +42,7 @@ interface Props {
 
 interface FormValues {
   username: string
-  provider: string
+  provider: GitProviders | null
   repoId: string
   repoName: string
   repoUrl: string
@@ -57,18 +56,33 @@ const iconProps = {
   size: 18
 }
 
-const providerIcons: Record<string, React.ReactNode> = {
-  github: <IconBrandGithub {...iconProps} />,
-  gitlab: <IconBrandGitlab {...iconProps} />,
-  bitbucket: <IconBrandBitbucket {...iconProps} />
+const providersMap: Record<GitProviders, { icon: ReactNode; label: string }> = {
+  github: {
+    icon: <IconBrandGithub {...iconProps}></IconBrandGithub>,
+    label: 'Github'
+  },
+  gitlab: {
+    icon: <IconBrandGitlab {...iconProps}></IconBrandGitlab>,
+    label: 'Gitlab'
+  },
+  bitbucket: {
+    icon: <IconBrandBitbucket {...iconProps}></IconBrandBitbucket>,
+    label: 'Bitbucket'
+  }
 }
+
+// const providerIcons: Record<string, React.ReactNode> = {
+//   github: <IconBrandGithub {...iconProps} />,
+//   gitlab: <IconBrandGitlab {...iconProps} />,
+//   bitbucket: <IconBrandBitbucket {...iconProps} />
+// }
 
 const renderSelectOption: SelectProps['renderOption'] = ({
   option,
   checked
 }) => (
   <Group flex='1' gap='xs'>
-    {providerIcons[option.value]}
+    {providersMap[option.value as GitProviders].icon}
     {option.label}
     {checked && (
       <IconCheck style={{ marginInlineStart: 'auto' }} {...iconProps} />
@@ -76,32 +90,39 @@ const renderSelectOption: SelectProps['renderOption'] = ({
   </Group>
 )
 
-export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
+export const CreateRepositoryForm = ({ open, onChange }: Props) => {
   const router = useRouter()
   const { user } = useAuth()
-  const { values, setFieldValue, onSubmit, errors, reset } =
-    useForm<FormValues>({
-      initialValues: {
-        provider: user.provider,
-        username: '',
-        repoId: '',
-        repoName: '',
-        repoUrl: '',
-        search: ''
-      },
-      validate: {
-        repoName: (value) => (value ? null : 'Please set a title'),
-        repoUrl: (value) => (value ? null : 'No url is specified')
-      }
-    })
+  const { values, setFieldValue, reset } = useForm<FormValues>({
+    initialValues: {
+      provider: null,
+      username: '',
+      repoId: '',
+      repoName: '',
+      repoUrl: '',
+      search: ''
+    },
+    validate: {
+      repoName: (value) => (value ? null : 'Please set a title'),
+      repoUrl: (value) => (value ? null : 'No url is specified')
+    }
+  })
   const comboboxRepos = useCombobox({
     onDropdownClose: () => comboboxRepos.resetSelectedOption()
   })
-  const { data: dataRepos, isLoading: isLoadingRepos } = useQuery<GithubRepos>({
-    queryKey: ['githubRepos'],
-    queryFn: () => selectGithubRepos(user.id),
-    enabled: open
+  const { data: dataProviders, isFetched: isFetchedProviders } = useQuery<
+    Array<GitProviders>
+  >({
+    queryKey: ['selectGitProviders'],
+    queryFn: () => selectGitProviders(user.id)
   })
+  const { data: dataRepos, isLoading: isLoadingRepos } =
+    useQuery<GitRepositories>({
+      queryKey: ['selectRepositories', values.provider],
+      queryFn: () =>
+        selectRepositories(user.id, values.provider as GitProviders),
+      enabled: open && isFetchedProviders && values.provider !== null
+    })
   const shouldFilterRepos = !dataRepos?.some(
     (repo) => repo.name === values.search
   )
@@ -139,6 +160,12 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
     comboboxRepos.selectFirstOption()
   }, [values.search])
 
+  useEffect(() => {
+    if (isFetchedProviders && dataProviders && dataProviders.length > 0) {
+      setFieldValue('provider', dataProviders[0]!)
+    }
+  }, [isFetchedProviders])
+
   return (
     <Drawer
       closeOnClickOutside={false}
@@ -155,24 +182,24 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
       <Title order={2}>Let's build something new...</Title>
       <Flex mt='xl' direction='row' gap='md' w='100%'>
         <Select
-          data={[
-            {
-              value: 'github',
-              label: 'Github'
-            },
-            {
-              value: 'gitlab',
-              label: 'Gitlab'
-            },
-            {
-              value: 'bitbucket',
-              label: 'Bitbucket'
-            }
-          ]}
-          leftSection={providerIcons[values.provider]}
+          allowDeselect={false}
+          data={
+            dataProviders?.map((provider) => {
+              return {
+                value: provider,
+                label: providersMap[provider].label
+              }
+            }) || []
+          }
+          leftSection={
+            values.provider ? providersMap[values.provider].icon : null
+          }
           leftSectionPointerEvents='none'
-          value='github'
+          onChange={(value) => setFieldValue('provider', value as GitProviders)}
+          value={values.provider}
           placeholder='Git provider'
+          rightSection={isLoadingRepos && <Loader size={18}></Loader>}
+          rightSectionPointerEvents='none'
           renderOption={renderSelectOption}
         ></Select>
         <TextInput
@@ -214,25 +241,30 @@ export const CreateRepositoryForm = ({ open, onChange, onSuccess }: Props) => {
             </Text>
           </Notification>
         ) : (
-          filteredRepos?.slice(0, 5).map(({ name, id, updated_at, owner }) => {
-            return (
-              <RepositoryImportCard
-                key={id}
-                data={{
-                  name,
-                  updatedAt: updated_at
-                }}
-                onClick={() =>
-                  handleSelect({
-                    id: String(id),
-                    provider: user.provider,
-                    repo: name,
-                    owner: owner.login
-                  })
-                }
-              ></RepositoryImportCard>
-            )
-          })
+          filteredRepos
+            ?.slice(0, 5)
+            .map(({ name, id, updatedAt, owner, url }) => {
+              return (
+                <RepositoryImportCard
+                  key={id}
+                  data={{
+                    id,
+                    owner,
+                    name,
+                    updatedAt,
+                    url
+                  }}
+                  onClick={() =>
+                    handleSelect({
+                      id: String(id),
+                      provider: String(values.provider),
+                      repo: name,
+                      owner: owner
+                    })
+                  }
+                ></RepositoryImportCard>
+              )
+            })
         )}
       </Stack>
     </Drawer>

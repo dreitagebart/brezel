@@ -131,4 +131,45 @@ export type GithubRepo = {
 
 export type GithubRepos = Array<GithubRepo>
 
+export type GitlabRepo = {
+  id: number
+  description: string | null
+  name: string
+  name_with_namespace: string
+  path: string
+  path_with_namespace: string
+  created_at: Date
+  default_branch: string
+  tag_list: Array<string>
+  topics: Array<string>
+  ssh_url_to_repo: string
+  http_url_to_repo: string
+  web_url: string
+  avatar_url: string
+  star_count: number
+  last_activity_at: Date
+  namespace: {
+    id: number
+    name: string
+    path: string
+    kind: string
+    full_path: string
+    parent_id: null | number
+    avatar_url: null | string
+    web_url: string
+  }
+}
+
+export type GitlabRepos = Array<GitlabRepo>
+
 export type LayoutRoutes = 'dashboard' | 'repository' | 'none'
+
+export type GitRepository = {
+  id: number
+  name: string
+  owner: string
+  url: string
+  updatedAt: Date
+}
+
+export type GitRepositories = Array<GitRepository>

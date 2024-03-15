@@ -32,10 +32,12 @@ import { CreateRepositoryForm } from '~/components/forms'
 import { Layouts } from '~/utils/types'
 
 interface Props {
-  initialData: Awaited<ReturnType<typeof getRepositories>>
+  initialData: {
+    repositories: Awaited<ReturnType<typeof getRepositories>>
+  }
 }
 
-export const DashboardView: FC<Props> = ({ initialData }) => {
+export const DashboardView: FC<Props> = ({ initialData: { repositories } }) => {
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebouncedValue(search, 300)
 
@@ -44,7 +46,7 @@ export const DashboardView: FC<Props> = ({ initialData }) => {
   const { data, refetch } = useQuery({
     queryKey: ['repositories'],
     queryFn: () => getRepositories(),
-    initialData
+    initialData: repositories
   })
   const filtered = data.filter((repo) =>
     repo.name.toLowerCase().includes(debouncedSearch)

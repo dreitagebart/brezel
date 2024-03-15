@@ -29,10 +29,11 @@ model Developer {
 
 model Repository {
   id          String       @id @default(uuid())
-  repoId      String
-  repoName    String
+  repoId      Int
   name        String
+  owner       String
   url         String
+  folder      String
   createdAt   DateTime     @default(now())
   deployments Deployment[]
   userId      String
@@ -41,10 +42,13 @@ model Repository {
 }
 
 model Deployment {
-  id           String     @id @default(uuid())
-  createdAt    DateTime   @default(now())
-  repositoryId String
-  repository   Repository @relation(fields: [repositoryId], references: [id])
+  id         String     @id @default(uuid())
+  createdAt  DateTime   @default(now())
+  repoId     String
+  duration   BigInt
+  branch     String
+  status     String
+  repository Repository @relation(fields: [repoId], references: [id])
 }
 
 model User {

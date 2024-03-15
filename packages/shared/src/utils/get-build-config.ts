@@ -27,9 +27,9 @@ export const buildConfig: BuildConfigMap<FrameworkPresets> = {
 
 export const getBuildConfig = (
   packageManager: PackageManagers,
-  preset: FrameworkPresets
+  frameworkPreset: FrameworkPresets
 ): BuildConfig => {
-  let config = buildConfig[preset]
+  let config = buildConfig[frameworkPreset]
 
   const keys = Object.keys(config) as Array<keyof typeof config>
 

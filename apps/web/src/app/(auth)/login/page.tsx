@@ -57,10 +57,16 @@ const Page: NextPage = async () => {
             >
               Continue with Github
             </Button>
-            <Button leftSection={<IconBrandGitlab></IconBrandGitlab>}>
+            <Button
+              leftSection={<IconBrandGitlab></IconBrandGitlab>}
+              onClick={() => login('gitlab')}
+            >
               Continue with Gitlab
             </Button>
-            <Button leftSection={<IconBrandBitbucket></IconBrandBitbucket>}>
+            <Button
+              leftSection={<IconBrandBitbucket></IconBrandBitbucket>}
+              onClick={() => login('bitbucket')}
+            >
               Continue with Bitbucket
             </Button>
           </Stack>

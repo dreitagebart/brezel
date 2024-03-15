@@ -5,7 +5,7 @@ import { DashboardView } from '~/views'
 const Page: NextPage = async () => {
   const repositories = await getRepositories()
 
-  return <DashboardView initialData={repositories}></DashboardView>
+  return <DashboardView initialData={{ repositories }}></DashboardView>
 }
 
 export default Page

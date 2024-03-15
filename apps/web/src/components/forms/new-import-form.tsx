@@ -16,35 +16,26 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { ChangeEvent, FC, useCallback, useState } from 'react'
-import { GithubRepo } from '~/utils/types'
+import { GitRepository } from '~/utils/types'
 import { getBuildConfig, frameworkPresets } from '@brezel/shared/utils'
 import {
   IconBrandGatsby,
   IconBrandNextjs,
   IconBrandVite,
-  IconCheck
+  IconCheck,
+  IconTransferIn
 } from '@tabler/icons-react'
-import {
-  FrameworkPresets,
-  PackageManagers,
-  RepositoryConfig
-} from '@brezel/shared/types'
+import { FrameworkPresets, RepositoryConfig } from '@brezel/shared/types'
 
 interface Props {
   data: {
     config: RepositoryConfig
-    repo: GithubRepo
+    repo: GitRepository
   }
 }
 
-interface FormState {
-  packageManager: PackageManagers
+interface FormState extends RepositoryConfig {
   name: string
-  preset: FrameworkPresets
-  root: string
-  buildCommand: string
-  outputDirectory: string
-  installCommand: string
   envs: Array<{ key: string; value: string }>
 }
 
@@ -78,8 +69,11 @@ export const NewImportForm: FC<Props> = ({
   data: {
     repo,
     config: {
+      rootPath,
+      isTurbo,
+      provider,
       packageManager,
-      preset,
+      frameworkPreset,
       buildCommand,
       installCommand,
       outputDirectory
@@ -88,11 +82,11 @@ export const NewImportForm: FC<Props> = ({
 }) => {
   const [locked, setLocked] = useState<
     Record<
-      'root' | 'buildCommand' | 'outputDirectory' | 'installCommand',
+      'rootPath' | 'buildCommand' | 'outputDirectory' | 'installCommand',
       boolean
     >
   >({
-    root: true,
+    rootPath: true,
     buildCommand: true,
     installCommand: true,
     outputDirectory: true
@@ -100,10 +94,12 @@ export const NewImportForm: FC<Props> = ({
   const { values, setFieldValue, onSubmit, insertListItem } =
     useForm<FormState>({
       initialValues: {
-        packageManager,
+        isTurbo,
+        provider,
         name: repo.name,
-        preset,
-        root: './',
+        packageManager,
+        frameworkPreset,
+        rootPath,
         buildCommand,
         installCommand,
         outputDirectory,
@@ -115,10 +111,10 @@ export const NewImportForm: FC<Props> = ({
   }, [])
   const handleSubmit = useCallback(({ name }: FormState) => {}, [])
   const handleFramework = useCallback(
-    (preset: FrameworkPresets) => {
-      const config = getBuildConfig(values.packageManager, preset)
+    (frameworkPreset: FrameworkPresets) => {
+      const config = getBuildConfig(values.packageManager, frameworkPreset)
 
-      setFieldValue('preset', preset)
+      setFieldValue('frameworkPreset', frameworkPreset)
       setFieldValue('buildCommand', config.buildCommand)
       setFieldValue('installCommand', config.installCommand)
       setFieldValue('outputDirectory', config.outputDirectory)
@@ -141,9 +137,9 @@ export const NewImportForm: FC<Props> = ({
           <Select
             flex={1}
             leftSectionPointerEvents='none'
-            leftSection={frameworkIcons[values.preset]}
+            leftSection={frameworkIcons[values.frameworkPreset]}
             label='Framework preset'
-            value={values.preset}
+            value={values.frameworkPreset}
             data={frameworkPresets}
             onChange={(value) => handleFramework(value as FrameworkPresets)}
             renderOption={renderSelectOption}
@@ -152,14 +148,16 @@ export const NewImportForm: FC<Props> = ({
         <Flex align='flex-end' gap='lg'>
           <TextInput
             flex={1}
-            disabled={locked.root}
+            disabled={locked.rootPath}
             label='Root directory'
             placeholder='./'
-            value={values.root}
+            value={values.rootPath}
             onChange={handleChange}
-            name='root'
+            name='rootPath'
           ></TextInput>
-          <Button onClick={() => setLocked({ ...locked, root: !locked.root })}>
+          <Button
+            onClick={() => setLocked({ ...locked, rootPath: !locked.rootPath })}
+          >
             Edit
           </Button>
         </Flex>
@@ -276,6 +274,11 @@ export const NewImportForm: FC<Props> = ({
             </AccordionPanel>
           </AccordionItem>
         </Accordion>
+        <Group grow>
+          <Button leftSection={<IconTransferIn></IconTransferIn>}>
+            Deploy
+          </Button>
+        </Group>
       </Stack>
     </form>
   )

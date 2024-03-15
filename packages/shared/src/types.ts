@@ -23,7 +23,14 @@ export type PackageManagers = 'yarn' | 'pnpm' | 'npm' | 'bun'
 
 export type FrameworkPresets = (typeof frameworkPresets)[number]
 
-export type RepositoryConfig = BuildConfig & {
+export type RepositoryConfig = BuildConfig &
+  DeploymentSettings & { provider: GitProviders }
+
+export type GitProviders = 'gitlab' | 'github' | 'bitbucket'
+
+export type DeploymentSettings = {
+  isTurbo: boolean
   packageManager: PackageManagers
-  preset: FrameworkPresets
+  frameworkPreset: FrameworkPresets
+  rootPath: string
 }
